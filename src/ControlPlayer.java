@@ -5,9 +5,9 @@ public class ControlPlayer extends Thread{
     boolean isActive;
     boolean isPlaying;
     boolean isRepeat;
-    int currenttime;
-    int totaltime;
-    int songID;
+    int currentTime;
+    int totalTime;
+    int songId;
     int queueSize;
 
 
@@ -15,18 +15,18 @@ public class ControlPlayer extends Thread{
             boolean isActive,
             boolean isPlaying,
             boolean isRepeat,
-            int currenttime,
-            int totaltime,
-            int songID,
+            int currentTime,
+            int totalTime,
+            int songId,
             int queueSize){
 
         this.window = window;
         this.isActive = isActive;
         this.isPlaying = isPlaying;
         this.isRepeat = isRepeat;
-        this.currenttime = currenttime;
-        this.totaltime = totaltime;
-        this.songID = songID;
+        this.currentTime = currentTime;
+        this.totalTime = totalTime;
+        this.songId = songId;
         this.queueSize = queueSize;
 
 
@@ -34,28 +34,28 @@ public class ControlPlayer extends Thread{
     @Override
 
     public void run(){
-        for(int i=0;i<=this.totaltime;i++) {
+        for(int i=0;i<=this.totalTime;i++) {
             try {
                 this.window.updateMiniplayer(
                         this.isActive,
                         this.isPlaying,
                         this.isRepeat,
-                        this.currenttime,
-                        this.totaltime,
-                        this.songID,
+                        this.currentTime,
+                        this.totalTime,
+                        this.songId,
                         this.queueSize)
                 ;
                 Thread.sleep(1000);
-                this.currenttime++;
+                this.currentTime++;
             }
             catch (Exception error){
                 this.window.updateMiniplayer(
                         true,
                         false,
                         false,
-                        this.currenttime,
-                        this.totaltime,
-                        this.songID,
+                        this.currentTime,
+                        this.totalTime,
+                        this.songId,
                         this.queueSize
                 );
                 break;
@@ -65,15 +65,15 @@ public class ControlPlayer extends Thread{
 
         }}
         public int getCurrentTime(){
-            return this.currenttime;
+            return this.currentTime;
         }
 
         public int getTotalTime(){
-            return this.totaltime;
+            return this.totalTime;
         }
 
         public int getCurrentSongId(){
-            return this.songID;
+            return this.songId;
         }
     };
 
