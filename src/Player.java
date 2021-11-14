@@ -89,11 +89,14 @@ public class Player {
     public void start() {
         this.currentime=0;
         int musicaselecionada = this.window.getSelectedSongID();
-        int tamanholistademusicas = this.listademusicas != null ? this.listademusicas.length : 0; //Mudar essa parte
+        int tamanholistademusicas = this.listademusicas.length;
+        int songTime = 0;
+
         for (int i=0; i < tamanholistademusicas ; i++) {
             if (this.listademusicas[i][6].equals(String.valueOf(musicaselecionada))) {
                 this.window.updatePlayingSongInfo(
                         this.listademusicas[i][0], this.listademusicas[i][1], this.listademusicas[i][2]);
+                        songTime = Integer.parseInt(this.listademusicas[i][5]);
                 break;
             }
         }
@@ -101,11 +104,9 @@ public class Player {
         this.window.enableScrubberArea();
         this.isplaying=true;
         this.window.updatePlayPauseButton(true);
-        this.thread = new ControlPlayer(this.window,true,true,false,this.currentime,Integer.parseInt(listademusicas[musicaselecionada-1][5]),Integer.parseInt(listademusicas[musicaselecionada-1][6]), tamanholistademusicas);
+        this.thread = new ControlPlayer(this.window,true,true,false,this.currentime, songTime, musicaselecionada, tamanholistademusicas);
         this.thread.start();
     };
-
-
 
 
     public void playpause() {
@@ -125,9 +126,23 @@ public class Player {
 
     public void remove() {
         int IDmusicaremovida = this.window.getSelectedSongID();
-        int tamanholistademusicas = this.listademusicas != null ? this.listademusicas.length : 0; //Mudar essa parte
+        int tamanholistademusicas = this.listademusicas.length;
         String [][] novalistademusicas = new String[tamanholistademusicas-1][7];
 
+        if (this.thread != null && IDmusicaremovida == this.thread.getCurrentSongId()){
+            this.thread.interrupt();
+            this.window.disableScrubberArea();
+            this.isplaying=false;
+            this.window.updateMiniplayer(
+                    false,
+                    false,
+                    false,
+                    0,
+                    0,
+                    0,
+                    tamanholistademusicas - 1
+            );
+        }
 
         for(int j=0; j < tamanholistademusicas-1; j++ ) {
             if (j < IDmusicaremovida - 1) {
@@ -139,9 +154,9 @@ public class Player {
 
         }
 
-
         this.listademusicas=novalistademusicas;
         window.updateQueueList(novalistademusicas);
+
 
     };
 

@@ -50,5 +50,9 @@ public class ControlPlayer extends Thread{
         public int getCurrentTime(){
             return this.currenttime;
         }
+
+        public int getCurrentSongId(){
+            return this.songID;
+        }
     };
 
