@@ -5,11 +5,11 @@ import ui.AddSongWindow;
 
 
 public class Player {
-    int currentime;
-    String songID="0";
-    String [][] listademusicas;
-    AddSongWindow addSongWindow;
     PlayerWindow window;
+    String [][] listademusicas;
+    int currentime;
+    String songID = "0";
+    AddSongWindow addSongWindow;
     boolean isplaying = false;
     ControlPlayer thread;
 
@@ -50,8 +50,7 @@ public class Player {
 
         };
 
-        String windowTitle = "Player de Música";
-
+        String windowTitle = "Tocador de Música";
 
 
         this.window = new PlayerWindow(
@@ -66,8 +65,7 @@ public class Player {
             buttonListenerRepeat,
             scrubberListenerClick,
             scrubberListenerMotion,
-            windowTitle,
-            getQueueasArray()
+            windowTitle,this.listademusicas
             );
 
 
@@ -76,49 +74,73 @@ public class Player {
 
     }
 
-    String[][] array = new String[100][100];
-
-
     public String setSongID(String IDprevious ) {
         int IDpreviousint = Integer.parseInt(IDprevious);
         IDpreviousint = IDpreviousint + 1;
-        IDprevious = String.valueOf(IDpreviousint);
-        this.songID=IDprevious;
-        return IDprevious;
+        String IDatual = String.valueOf(IDpreviousint);
+        this.songID=IDatual;
+        return this.songID;
     };
+
     public void start() {
         this.currentime=0;
         int musicaselecionada = this.window.getSelectedSongID();
         int tamanholistademusicas = this.listademusicas.length;
         int songTime = 0;
 
+        // Checando a música escolhida na matriz para colher informações
+
         for (int i=0; i < tamanholistademusicas ; i++) {
-            if (this.listademusicas[i][6].equals(String.valueOf(musicaselecionada))) {
+            String songID = this.listademusicas[i][6];
+            if (songID.equals(String.valueOf(musicaselecionada))) {
                 this.window.updatePlayingSongInfo(
                         this.listademusicas[i][0], this.listademusicas[i][1], this.listademusicas[i][2]);
                         songTime = Integer.parseInt(this.listademusicas[i][5]);
                 break;
             }
         }
-
         this.window.enableScrubberArea();
         this.isplaying=true;
         this.window.updatePlayPauseButton(true);
-        this.thread = new ControlPlayer(this.window,true,true,false,this.currentime, songTime, musicaselecionada, tamanholistademusicas);
+
+        //Uso de Thread para ser possível controlar a atualização do painel enquanto a música é executada
+        //e deixar as outras funções também disponíveis para o usuário pode utilizar "simultaneamente"
+
+
+        this.thread = new ControlPlayer(this.window,
+                true,
+                true,
+                false,
+                this.currentime,
+                songTime, //Tempo Total
+                musicaselecionada, //SongID
+                tamanholistademusicas);
+                
         this.thread.start();
+        //Fazer a thread iniciar somente depois da  atualização das infomações:
+        //-Habilitar a Área de MiniPlayer
+        //-Botao de Play/Pause
     };
 
 
     public void playpause() {
-        int tamanholistademusicas = this.listademusicas != null ? this.listademusicas.length : 0; //Mudar essa parte
+        int tamanholistademusicas = this.listademusicas != null ? this.listademusicas.length : 0;
         int musicaselecionada = this.window.getSelectedSongID();
         if(this.isplaying){
             this.window.updatePlayPauseButton(false);
-            this.thread.interrupt();
+            this.thread.interrupt(); // Setado a flag de interrupção da thread quando o botão de pause é apertado
             this.isplaying=false;
         }else {
             this.window.updatePlayPauseButton(true);
-            this.thread = new ControlPlayer(this.window, true, true,  false, this.thread.getCurrentTime(), Integer.parseInt(listademusicas[musicaselecionada-1][5]),Integer.parseInt(this.songID) , tamanholistademusicas);
+            //Play apertado, seta-se nova thread com o CurrentTime que tinha parado anteriormente
+            this.thread = new ControlPlayer(this.window,
+                    true,
+                    true,
+                    false,
+                    this.thread.getCurrentTime(),
+                    Integer.parseInt(listademusicas[musicaselecionada-1][5]),//Tempo Total da música em execução
+                    Integer.parseInt(this.songID),
+                    tamanholistademusicas);
             this.thread.start();
             this.isplaying=true;
         }
@@ -163,16 +185,21 @@ public class Player {
 
 
     public void add() {
+                int tamanholistademusicas = this.listademusicas != null ? this.listademusicas.length : 0;
                 ActionListener addSong = e -> {
+                    //Guardando informações da música num array
                     String[] infosong = addSongWindow.getSong();
-                    int tamlistademusicas = this.listademusicas != null ? this.listademusicas.length : 0; //Mudar essa parte
 
-                    String[][] novalistademusicas = new String[tamlistademusicas+1][7];
-                    for(int i=0;i<tamlistademusicas;i++){
+                    // Fazendo a cópia da lista de músicas antes de adicionar a nova música
+                    String[][] novalistademusicas = new String[tamanholistademusicas+1][7];
+                    for(int i=0;i<tamanholistademusicas;i++){
                         novalistademusicas[i]=listademusicas[i];
                     }
 
-                    novalistademusicas[tamlistademusicas] = infosong;
+                    //Adicionando as informações da nova música na lista de músicas
+                    novalistademusicas[tamanholistademusicas] = infosong;
+
+                    //Atualizando a lista de músicas
                     this.listademusicas = novalistademusicas;
                     window.updateQueueList(novalistademusicas);
 
@@ -193,9 +220,6 @@ public class Player {
 
     public void repeat() {};
 
-    public String[][] getQueueasArray(){
-        return array;
-    };
 
 }
 

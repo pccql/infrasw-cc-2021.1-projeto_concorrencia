@@ -32,15 +32,32 @@ public class ControlPlayer extends Thread{
 
     }
     @Override
+
     public void run(){
         for(int i=0;i<=this.totaltime;i++) {
             try {
+                this.window.updateMiniplayer(
+                        this.isActive,
+                        this.isPlaying,
+                        this.isRepeat,
+                        this.currenttime,
+                        this.totaltime,
+                        this.songID,
+                        this.queueSize)
+                ;
                 Thread.sleep(1000);
-                this.window.updateMiniplayer(this.isActive, this.isPlaying, this.isRepeat, this.currenttime, this.totaltime, this.songID, this.queueSize);
                 this.currenttime++;
             }
             catch (Exception error){
-                this.window.updateMiniplayer(true, false, false, this.currenttime ,this.totaltime, this.songID, this.queueSize);
+                this.window.updateMiniplayer(
+                        true,
+                        false,
+                        false,
+                        this.currenttime,
+                        this.totaltime,
+                        this.songID,
+                        this.queueSize
+                );
                 break;
 
             }
