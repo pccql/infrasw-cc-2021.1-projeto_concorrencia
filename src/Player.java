@@ -138,7 +138,7 @@ public class Player {
                     true,
                     false,
                     this.thread.getCurrentTime(),
-                    Integer.parseInt(listademusicas[musicaselecionada-1][5]),//Tempo Total da música em execução
+                    this.thread.getTotalTime(),//Tempo Total da música em execução
                     Integer.parseInt(this.songID),
                     tamanholistademusicas);
             this.thread.start();

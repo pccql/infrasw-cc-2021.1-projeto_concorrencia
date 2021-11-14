@@ -68,6 +68,10 @@ public class ControlPlayer extends Thread{
             return this.currenttime;
         }
 
+        public int getTotalTime(){
+            return this.totaltime;
+        }
+
         public int getCurrentSongId(){
             return this.songID;
         }
