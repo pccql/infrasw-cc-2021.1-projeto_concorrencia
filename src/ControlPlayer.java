@@ -33,18 +33,22 @@ public class ControlPlayer extends Thread{
     }
     @Override
     public void run(){
-        for(int i=1;i<=this.totaltime;i++) {
+        for(int i=0;i<=this.totaltime;i++) {
             try {
                 Thread.sleep(1000);
+                this.window.updateMiniplayer(this.isActive, this.isPlaying, this.isRepeat, this.currenttime, this.totaltime, this.songID, this.queueSize);
                 this.currenttime++;
-                this.window.updateMiniplayer(this.isActive, this.isPlaying, this.isRepeat, i, this.totaltime, this.songID, this.queueSize);
             }
             catch (Exception error){
-                this.window.updateMiniplayer(this.isActive, this.isPlaying, this.isRepeat, i, this.totaltime, this.songID, this.queueSize);
-                Thread.interrupted();
+                this.window.updateMiniplayer(true, false, false, this.currenttime ,this.totaltime, this.songID, this.queueSize);
+                break;
+
             }
 
 
+        }}
+        public int getCurrentTime(){
+            return this.currenttime;
         }
     };
-}
+

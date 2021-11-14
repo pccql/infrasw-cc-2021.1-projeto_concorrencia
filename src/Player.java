@@ -5,7 +5,7 @@ import ui.AddSongWindow;
 
 
 public class Player {
-    int currentime=0;
+    int currentime;
     String songID="0";
     String [][] listademusicas;
     AddSongWindow addSongWindow;
@@ -109,17 +109,16 @@ public class Player {
 
 
     public void playpause() {
-        System.out.println("Playpause");
         int tamanholistademusicas = this.listademusicas != null ? this.listademusicas.length : 0; //Mudar essa parte
         int musicaselecionada = this.window.getSelectedSongID();
         if(this.isplaying){
             this.window.updatePlayPauseButton(false);
-            System.out.println("Thread Interrompida");
-            Thread.interrupted();
+            this.thread.interrupt();
             this.isplaying=false;
         }else {
             this.window.updatePlayPauseButton(true);
-            this.thread = new ControlPlayer(this.window, true, true,  false, this.currentime, Integer.parseInt(listademusicas[musicaselecionada-1][5]),Integer.parseInt(this.songID) , tamanholistademusicas);
+            this.thread = new ControlPlayer(this.window, true, true,  false, this.thread.getCurrentTime(), Integer.parseInt(listademusicas[musicaselecionada-1][5]),Integer.parseInt(this.songID) , tamanholistademusicas);
+            this.thread.start();
             this.isplaying=true;
         }
     };
