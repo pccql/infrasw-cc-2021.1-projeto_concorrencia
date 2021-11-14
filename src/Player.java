@@ -1,15 +1,19 @@
-import java.awt.event.ActionListener;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
-import java.awt.event.MouseMotionListener;
+import java.awt.event.*;
 
 import ui.PlayerWindow;
 import ui.AddSongWindow;
 
 
 public class Player {
-    public Player() {
+    String songID="0";
+    String [][] listademusicas;
+    AddSongWindow addSongWindow;
+    PlayerWindow window;
+    boolean isplaying = false;
+    ControlPlayer thread;
 
+
+    public Player() {
         ActionListener buttonListenerPlayNow = e -> start();
         ActionListener buttonListenerRemove = e -> remove();
         ActionListener buttonListenerAddSong = e -> add();
@@ -49,7 +53,7 @@ public class Player {
 
 
 
-        PlayerWindow window = new PlayerWindow(
+        this.window = new PlayerWindow(
             buttonListenerPlayNow,
             buttonListenerRemove,
             buttonListenerAddSong,
@@ -66,11 +70,6 @@ public class Player {
             );
 
 
-        String songID = "1";
-
-        ActionListener actionListener = e -> {};
-
-        AddSongWindow addSongWindow = new AddSongWindow(songID, buttonListenerAddSong, window.getAddSongWindowListener());
 
 
 
@@ -79,13 +78,91 @@ public class Player {
     String[][] array = new String[100][100];
 
 
-    public void start() {};
+    public String setSongID(String IDprevious ) {
+        int IDpreviousint = Integer.parseInt(IDprevious);
+        IDpreviousint = IDpreviousint + 1;
+        IDprevious = String.valueOf(IDpreviousint);
+        this.songID=IDprevious;
+        return IDprevious;
+    };
+    public void start() {
+        int musicaselecionada = this.window.getSelectedSongID();
+        int tamanholistademusicas = this.listademusicas != null ? this.listademusicas.length : 0; //Mudar essa parte
+        for (int i=0; i < tamanholistademusicas ; i++) {
+            if (this.listademusicas[i][6].equals(String.valueOf(musicaselecionada))) {
+                this.window.updatePlayingSongInfo(
+                        this.listademusicas[i][0], this.listademusicas[i][1], this.listademusicas[i][2]);
+                break;
+            }
+        }
 
-    public void remove() {};
+        this.window.enableScrubberArea();
+        this.isplaying=true;
+        this.window.updatePlayPauseButton(true);
+        this.thread = new ControlPlayer(this.window,true,true,false,0,Integer.parseInt(listademusicas[musicaselecionada-1][5]),Integer.parseInt(listademusicas[musicaselecionada-1][6]), tamanholistademusicas);
+        this.thread.start();
 
-    public void add() {};
 
-    public void playpause() {};
+    };
+
+
+
+
+    public void playpause() {
+        if(this.isplaying){
+            this.window.updatePlayPauseButton(false);
+            this.isplaying=false;
+        }else {
+            this.window.updatePlayPauseButton(true);
+            this.isplaying=true;
+        }
+    };
+
+    public void remove() {
+        int IDmusicaremovida = this.window.getSelectedSongID();
+
+        int tamanholistademusicas = this.listademusicas != null ? this.listademusicas.length : 0; //Mudar essa parte
+        String [][] novalistademusicas = new String[tamanholistademusicas-1][7];
+
+
+        for(int j=0; j < tamanholistademusicas-1; j++ ) {
+            if (j < IDmusicaremovida - 1) {
+                novalistademusicas[j] = listademusicas[j];
+            }
+            else{
+                novalistademusicas[j] = listademusicas[j+1];
+            }
+
+        }
+
+
+        this.listademusicas=novalistademusicas;
+        window.updateQueueList(novalistademusicas);
+
+    };
+
+
+
+    public void add() {
+                ActionListener addSong = e -> {
+                    String[] infosong = addSongWindow.getSong();
+                    int tamlistademusicas = this.listademusicas != null ? this.listademusicas.length : 0; //Mudar essa parte
+
+                    String[][] novalistademusicas = new String[tamlistademusicas+1][7];
+                    for(int i=0;i<tamlistademusicas;i++){
+                        novalistademusicas[i]=listademusicas[i];
+                    }
+
+                    novalistademusicas[tamlistademusicas] = infosong;
+                    this.listademusicas = novalistademusicas;
+                    window.updateQueueList(novalistademusicas);
+
+                };
+                this.addSongWindow = new AddSongWindow(setSongID(songID), addSong, this.window.getAddSongWindowListener());
+
+    };
+
+
 
     public void stop() {};
 
@@ -97,8 +174,7 @@ public class Player {
 
     public void repeat() {};
 
-    public String[][] getQueueasArray() {
-
+    public String[][] getQueueasArray(){
         return array;
     };
 

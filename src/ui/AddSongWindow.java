@@ -218,7 +218,7 @@ public class AddSongWindow extends Thread {
                                     songLengthSeconds,
                                     songID};
                             buttonListenerAddSongOK.actionPerformed(new ActionEvent(this, ActionEvent.ACTION_PERFORMED, null));
-                            window.dispatchEvent(new WindowEvent(window, WindowEvent.WINDOW_CLOSING));
+                           window.dispatchEvent(new WindowEvent(window, WindowEvent.WINDOW_CLOSING));
                         } else {
                             if (lengthWarningTimer.isRunning()) lengthWarningTimer.stop();
                             songLengthLabel.setText("Minutes or seconds can't be greater than 59.");
