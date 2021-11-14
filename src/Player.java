@@ -5,6 +5,7 @@ import ui.AddSongWindow;
 
 
 public class Player {
+    int currentime=0;
     String songID="0";
     String [][] listademusicas;
     AddSongWindow addSongWindow;
@@ -86,6 +87,7 @@ public class Player {
         return IDprevious;
     };
     public void start() {
+        this.currentime=0;
         int musicaselecionada = this.window.getSelectedSongID();
         int tamanholistademusicas = this.listademusicas != null ? this.listademusicas.length : 0; //Mudar essa parte
         for (int i=0; i < tamanholistademusicas ; i++) {
@@ -99,28 +101,31 @@ public class Player {
         this.window.enableScrubberArea();
         this.isplaying=true;
         this.window.updatePlayPauseButton(true);
-        this.thread = new ControlPlayer(this.window,true,true,false,0,Integer.parseInt(listademusicas[musicaselecionada-1][5]),Integer.parseInt(listademusicas[musicaselecionada-1][6]), tamanholistademusicas);
+        this.thread = new ControlPlayer(this.window,true,true,false,this.currentime,Integer.parseInt(listademusicas[musicaselecionada-1][5]),Integer.parseInt(listademusicas[musicaselecionada-1][6]), tamanholistademusicas);
         this.thread.start();
-
-
     };
 
 
 
 
     public void playpause() {
+        System.out.println("Playpause");
+        int tamanholistademusicas = this.listademusicas != null ? this.listademusicas.length : 0; //Mudar essa parte
+        int musicaselecionada = this.window.getSelectedSongID();
         if(this.isplaying){
             this.window.updatePlayPauseButton(false);
+            System.out.println("Thread Interrompida");
+            Thread.interrupted();
             this.isplaying=false;
         }else {
             this.window.updatePlayPauseButton(true);
+            this.thread = new ControlPlayer(this.window, true, true,  false, this.currentime, Integer.parseInt(listademusicas[musicaselecionada-1][5]),Integer.parseInt(this.songID) , tamanholistademusicas);
             this.isplaying=true;
         }
     };
 
     public void remove() {
         int IDmusicaremovida = this.window.getSelectedSongID();
-
         int tamanholistademusicas = this.listademusicas != null ? this.listademusicas.length : 0; //Mudar essa parte
         String [][] novalistademusicas = new String[tamanholistademusicas-1][7];
 

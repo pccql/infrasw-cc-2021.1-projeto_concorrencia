@@ -36,11 +36,14 @@ public class ControlPlayer extends Thread{
         for(int i=1;i<=this.totaltime;i++) {
             try {
                 Thread.sleep(1000);
+                this.currenttime++;
                 this.window.updateMiniplayer(this.isActive, this.isPlaying, this.isRepeat, i, this.totaltime, this.songID, this.queueSize);
             }
             catch (Exception error){
-                System.out.println("erro");
+                this.window.updateMiniplayer(this.isActive, this.isPlaying, this.isRepeat, i, this.totaltime, this.songID, this.queueSize);
+                Thread.interrupted();
             }
+
 
         }
     };
