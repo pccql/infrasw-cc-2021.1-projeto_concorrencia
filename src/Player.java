@@ -106,7 +106,9 @@ public class Player {
         //Uso de Thread para ser possível controlar a atualização do painel enquanto a música é executada
         //e deixar as outras funções também disponíveis para o usuário pode utilizar "simultaneamente"
 
-
+        if (this.thread != null) {
+            this.thread.interrupt();
+        }
         this.thread = new ControlPlayer(this.window,
                 true,
                 true,
@@ -125,7 +127,6 @@ public class Player {
 
     public void playpause() {
         int tamanholistademusicas = this.listademusicas != null ? this.listademusicas.length : 0;
-        int musicaselecionada = this.window.getSelectedSongID();
         if(this.isplaying){
             this.window.updatePlayPauseButton(false);
             this.thread.interrupt(); // Setado a flag de interrupção da thread quando o botão de pause é apertado
@@ -143,8 +144,9 @@ public class Player {
                     tamanholistademusicas);
             this.thread.start();
             this.isplaying=true;
+        };
         }
-    };
+
 
     public void remove() {
         int IDmusicaremovida = this.window.getSelectedSongID();
