@@ -249,7 +249,31 @@ public class Player {
 
     };
 
-    public void prev() {};
+    public void prev() {
+        this.thread.interrupt();
+        int previousSong = this.thread.getCurrentSongId()-1;
+        int songListSize = this.songList.length;
+        int songTime=0;
+
+        for (int i=0; i < songListSize ; i++) {
+            String songId = this.songList[i][6];
+            if (songId.equals(String.valueOf(previousSong))) {
+                this.window.updatePlayingSongInfo(
+                        this.songList[i][0], this.songList[i][1], this.songList[i][2]);
+                songTime = Integer.parseInt(this.songList[i][5]);
+                break;
+            }
+        }
+        this.thread = new ControlPlayer(this.window,
+                true,
+                true,
+                false,
+                0,
+                songTime,//Tempo Total da música em execução
+                previousSong,
+                songListSize);
+        this.thread.start();
+    };
 
     public void shuffle() {};
 

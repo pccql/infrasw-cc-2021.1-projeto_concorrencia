@@ -160,7 +160,7 @@ public class MiniPlayerPanel extends JPanel {
             miniPlayerScrubber.setMaximum(totalTime);
             miniPlayerScrubber.setValue(currentTime);
             if (!isRepeat) {
-                miniPlayerPreviousButton.setEnabled(songIndex > 0);
+                miniPlayerPreviousButton.setEnabled(songIndex > 1);
                 miniPlayerNextButton.setEnabled(songIndex < queueSize);
             } else {
                 miniPlayerPreviousButton.setEnabled(true);
