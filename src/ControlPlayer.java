@@ -36,8 +36,8 @@ public class ControlPlayer extends Thread{
     public void run(){
         for(int i=0;i<=this.totalTime;i++) {
             try {
-                System.out.println(songId);
-                System.out.println(queueSize);
+//                System.out.println(songId);
+//                System.out.println(queueSize);
                 this.window.updateMiniplayer(
                         this.isActive,
                         this.isPlaying,
@@ -48,7 +48,11 @@ public class ControlPlayer extends Thread{
                         this.queueSize)
                 ;
                 Thread.sleep(1000);
-                this.currentTime++;
+
+                if (this.isPlaying) {
+                    this.currentTime++;
+                }
+
             }
             catch (Exception error){
                 this.window.updateMiniplayer(
@@ -84,5 +88,12 @@ public class ControlPlayer extends Thread{
         public void setSongId(int updatedSongID){
             this.songId=updatedSongID; }
 
-    };
+        public void setCurrentTime(int updatecurrentTime){
+            this.currentTime = updatecurrentTime;}
+
+        public void setisPlaying(boolean updateisPlaying){
+            this.isPlaying = updateisPlaying;
+        }
+
+    }
 

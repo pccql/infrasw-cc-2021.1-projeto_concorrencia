@@ -26,16 +26,25 @@ public class Player {
         ActionListener buttonListenerRepeat = e -> repeat();
         MouseListener scrubberListenerClick = new MouseListener(){
             @Override
-            public void mouseClicked(MouseEvent e) {}
+            public void mouseClicked(MouseEvent e) {
+
+            }
 
             @Override
-            public void mouseReleased(MouseEvent e){}
+            public void mouseReleased(MouseEvent e){
+                released();
+            }
 
             @Override
-            public void mousePressed(MouseEvent e){}
+            public void mousePressed(MouseEvent e){
+                dragged();
+
+            }
 
             @Override
-            public void mouseEntered(MouseEvent e){}
+            public void mouseEntered(MouseEvent e){
+
+            }
 
             @Override
             public void mouseExited(MouseEvent e){}
@@ -43,7 +52,11 @@ public class Player {
 
         MouseMotionListener scrubberListenerMotion = new MouseMotionListener(){
             @Override
-            public void mouseDragged(MouseEvent e) {}
+            public void mouseDragged(MouseEvent e) {
+                dragged();
+
+
+            }
 
             @Override
             public void mouseMoved(MouseEvent e){}
@@ -274,6 +287,39 @@ public class Player {
                 songListSize);
         this.thread.start();
     };
+
+
+    public void released(){
+        this.thread.setCurrentTime(this.window.getScrubberValue());
+        this.thread.setisPlaying(true);
+
+    }
+
+    public void dragged(){
+        this.thread.setCurrentTime(this.window.getScrubberValue());
+        this.thread.setisPlaying(false);
+
+    }
+
+//    public  void  presspause(){
+//
+//        this.thread.interrupt();
+//        this.thread = new ControlPlayer(this.window,
+//                true,
+//                true,
+//                false,
+//                pause_time,
+//                this.thread.getTotalTime(),//Tempo Total da música em execução
+//                Integer.parseInt(this.songId),
+//                songList.length);
+//        this.thread.start();
+//
+//
+//    }
+
+
+
+
 
     public void shuffle() {};
 
