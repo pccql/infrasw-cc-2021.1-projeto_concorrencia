@@ -161,7 +161,7 @@ public class MiniPlayerPanel extends JPanel {
             miniPlayerScrubber.setValue(currentTime);
             if (!isRepeat) {
                 miniPlayerPreviousButton.setEnabled(songIndex > 0);
-                miniPlayerNextButton.setEnabled(songIndex < queueSize - 1);
+                miniPlayerNextButton.setEnabled(songIndex < queueSize);
             } else {
                 miniPlayerPreviousButton.setEnabled(true);
                 miniPlayerNextButton.setEnabled(true);

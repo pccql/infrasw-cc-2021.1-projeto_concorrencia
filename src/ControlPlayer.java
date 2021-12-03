@@ -36,6 +36,8 @@ public class ControlPlayer extends Thread{
     public void run(){
         for(int i=0;i<=this.totalTime;i++) {
             try {
+                System.out.println(songId);
+                System.out.println(queueSize);
                 this.window.updateMiniplayer(
                         this.isActive,
                         this.isPlaying,
@@ -75,5 +77,12 @@ public class ControlPlayer extends Thread{
         public int getCurrentSongId(){
             return this.songId;
         }
+
+        public void setQueueSize(int updatedQueueSize){
+            this.queueSize=updatedQueueSize; }
+
+        public void setSongId(int updatedSongID){
+            this.songId=updatedSongID; }
+
     };
 

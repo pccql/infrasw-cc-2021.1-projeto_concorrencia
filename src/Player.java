@@ -146,6 +146,9 @@ public class Player {
         int songListSize = this.songList.length;
         String [][] newSongList = new String[songListSize-1][7];
 
+        if(this.thread!=null){
+            this.thread.setQueueSize(songListSize-1);}
+
         if (this.thread != null && songId == this.thread.getCurrentSongId()){
             this.thread.interrupt();
             this.window.disableScrubberArea();
@@ -164,14 +167,23 @@ public class Player {
         for(int j=0; j < songListSize-1; j++ ) {
             if (j < songId - 1) {
                 newSongList[j] = songList[j];
+                newSongList[j][6]=String.valueOf(j+1);
+
             }
             else{
                 newSongList[j] = songList[j+1];
-            }
-
+                newSongList[j][6]=String.valueOf(j+1);
+            };
         }
-
         this.songList=newSongList;
+
+        if(this.thread != null && this.thread.getCurrentSongId() > songId){
+            this.thread.setSongId(this.thread.getCurrentSongId()-1);
+        }
+//        for (int i=0;i<songListSize-1;i++){
+//            System.out.println(newSongList[i][6]);
+//        }
+        this.songId = String.valueOf(Integer.parseInt(this.songId)-1);
         window.updateQueueList(newSongList);
     };
 
@@ -195,16 +207,47 @@ public class Player {
             //Atualizando a lista de músicas
             this.songList = newSongList;
             window.updateQueueList(newSongList);
+
+            if (this.thread!=null) {
+                this.thread.setQueueSize(songListSize + 1);
+            }
             };
 
             this.addSongWindow = new AddSongWindow(setSongId(songId), addSong, this.window.getAddSongWindowListener());
+
+
 };
 
 
 
     public void stop() {};
 
-    public void next() {};
+    public void next() {
+        this.thread.interrupt();
+        int nextSong = this.thread.getCurrentSongId()+1;
+        int songListSize = this.songList.length;
+        int songTime=0;
+
+        for (int i=0; i < songListSize ; i++) {
+            String songId = this.songList[i][6];
+            if (songId.equals(String.valueOf(nextSong))) {
+                this.window.updatePlayingSongInfo(
+                        this.songList[i][0], this.songList[i][1], this.songList[i][2]);
+                songTime = Integer.parseInt(this.songList[i][5]);
+                break;
+            }
+        }
+        this.thread = new ControlPlayer(this.window,
+                true,
+                true,
+                false,
+                0,
+                songTime,//Tempo Total da música em execução
+                nextSong,
+                songListSize);
+        this.thread.start();
+
+    };
 
     public void prev() {};
 
