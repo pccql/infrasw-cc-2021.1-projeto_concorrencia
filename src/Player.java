@@ -3,8 +3,7 @@ import java.awt.event.*;
 import ui.PlayerWindow;
 import ui.AddSongWindow;
 import java.util.concurrent.locks.ReentrantLock;
-
-
+import javax.swing.*;
 
 public class Player {
     PlayerWindow window;
@@ -146,11 +145,11 @@ public class Player {
             lock.lock();
             int songListSize = this.songList != null ? this.songList.length : 0;
             if(this.isPlaying){
-                this.window.updatePlayPauseButton(false);
+                SwingUtilities.invokeLater(() -> this.window.updatePlayPauseButton(false));
                 this.thread.interrupt(); // Setado a flag de interrupção da thread quando o botão de pause é apertado
                 this.isPlaying=false;
             }else {
-                this.window.updatePlayPauseButton(true);
+                SwingUtilities.invokeLater(() ->  this.window.updatePlayPauseButton(true));
                 //Play apertado, seta-se nova thread com o CurrentTime que tinha parado anteriormente
                 this.thread = new ControlPlayer(this.window,
                         true,
@@ -278,8 +277,11 @@ public class Player {
             for (int i=0; i < songListSize ; i++) {
                 String songId = this.songList[i][6];
                 if (songId.equals(String.valueOf(nextSong))) {
-                    this.window.updatePlayingSongInfo(
-                            this.songList[i][0], this.songList[i][1], this.songList[i][2]);
+                    int finalI = i;
+                    SwingUtilities.invokeLater(() -> {
+                        this.window.updatePlayingSongInfo(this.songList[finalI][0], this.songList[finalI][1], this.songList[finalI][2]);
+                    });
+
                     songTime = Integer.parseInt(this.songList[i][5]);
                     break;
                 }
@@ -312,8 +314,11 @@ public class Player {
            for (int i=0; i < songListSize ; i++) {
                String songId = this.songList[i][6];
                if (songId.equals(String.valueOf(previousSong))) {
-                   this.window.updatePlayingSongInfo(
-                           this.songList[i][0], this.songList[i][1], this.songList[i][2]);
+                   int finalI = i;
+                   SwingUtilities.invokeLater(() ->
+                       this.window.updatePlayingSongInfo(this.songList[finalI][0], this.songList[finalI][1], this.songList[finalI][2])
+                   );
+
                    songTime = Integer.parseInt(this.songList[i][5]);
                    break;
                }
