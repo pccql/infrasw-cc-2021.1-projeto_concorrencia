@@ -4,6 +4,9 @@ import ui.PlayerWindow;
 import ui.AddSongWindow;
 import java.util.concurrent.locks.ReentrantLock;
 import javax.swing.*;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
 public class Player {
     PlayerWindow window;
@@ -12,6 +15,10 @@ public class Player {
     String songId = "0";
     AddSongWindow addSongWindow;
     boolean isPlaying = false;
+    boolean isRepeat = false;
+    boolean isRandom = false;
+    Integer [] shuffleOrder;
+    int shuffleId = 0;
     ControlPlayer thread;
     ReentrantLock lock = new ReentrantLock();
 
@@ -262,17 +269,29 @@ public class Player {
 
 };
 
-
-
-    public void stop() {};
+    public void stop() {
+        try{
+            lock.lock();
+            this.thread.interrupt();
+            this.window.disableScrubberArea();
+            this.window.resetMiniPlayer();
+            shuffleId = 0;
+        } finally {
+            lock.unlock();
+        }
+    };
 
     public void next() {
         try{
             lock.lock();
             this.thread.interrupt();
-            int nextSong = this.thread.getCurrentSongId()+1;
             int songListSize = this.songList.length;
-            int songTime=0;
+            int nextSong = isRandom ? shuffleOrder[shuffleId + 1] : this.thread.getCurrentSongId()+1;
+            int songTime = 0;
+
+            if (isRandom) {
+                shuffleId++;
+            }
 
             for (int i=0; i < songListSize ; i++) {
                 String songId = this.songList[i][6];
@@ -292,7 +311,7 @@ public class Player {
                     false,
                     0,
                     songTime,//Tempo Total da música em execução
-                    nextSong,
+                    isRandom ? shuffleId + 1 : nextSong,
                     songListSize);
             this.thread.start();
         }
@@ -307,9 +326,11 @@ public class Player {
        try{
            lock.lock();
            this.thread.interrupt();
-           int previousSong = this.thread.getCurrentSongId()-1;
+           int previousSong = isRandom ? shuffleOrder[shuffleId - 1] : this.thread.getCurrentSongId()-1;
            int songListSize = this.songList.length;
-           int songTime=0;
+           int songTime = 0;
+
+           if (isRandom){ shuffleId--; }
 
            for (int i=0; i < songListSize ; i++) {
                String songId = this.songList[i][6];
@@ -329,7 +350,7 @@ public class Player {
                    false,
                    0,
                    songTime,//Tempo Total da música em execução
-                   previousSong,
+                   isRandom ? shuffleId + 1 : previousSong,
                    songListSize);
            this.thread.start();
        } finally {
@@ -358,9 +379,54 @@ public class Player {
         }
     }
 
-    public void shuffle() {};
+    public void shuffle() {
+        try{
+            lock.lock();
+            isRandom = !isRandom;
+            if (isRandom && this.thread != null){
+                createShuffleOrder();
+                shuffleId = 0;
+            }
+        } finally {
+            lock.unlock();
+        }
 
-    public void repeat() {};
+    };
+
+    public void repeat() {
+        try{
+            lock.lock();
+            isRepeat = !isRepeat;
+        } finally {
+            lock.unlock();
+        }
+    };
+
+    private void createShuffleOrder( ) {
+        int currentSong = this.thread.getCurrentSongId();
+        int songListSize = this.songList.length;
+
+        Integer[] newShuffleList = new Integer[songListSize - 1];
+
+        int addedSongs = 0;
+        for (int i = 1; i < songListSize + 1; i++) {
+            if (i != currentSong) {
+                newShuffleList[addedSongs] = i;
+                addedSongs += 1;
+            }
+        }
+
+        List<Integer> intList = Arrays.asList(newShuffleList);
+        Collections.shuffle(intList);
+        intList.toArray(newShuffleList);
+
+        // adiciona musica atual no inicio na primeira posição e cria array final
+        shuffleOrder = new Integer[songListSize];
+        shuffleOrder[0] = currentSong;
+        System.arraycopy(newShuffleList, 0, shuffleOrder, 1, songListSize - 1);
+
+        System.out.println(Arrays.toString(shuffleOrder));
+    }
 
 
 }

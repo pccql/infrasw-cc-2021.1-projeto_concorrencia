@@ -65,7 +65,6 @@ public class ControlPlayer extends Thread{
                         this.queueSize
                 );
                 break;
-
             }
 
 
