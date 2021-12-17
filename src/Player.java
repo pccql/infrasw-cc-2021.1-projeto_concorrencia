@@ -273,6 +273,7 @@ public class Player {
         try{
             lock.lock();
             this.thread.interrupt();
+            this.thread = null;
             this.window.disableScrubberArea();
             this.window.resetMiniPlayer();
             shuffleId = 0;
@@ -311,7 +312,7 @@ public class Player {
                     false,
                     0,
                     songTime,//Tempo Total da música em execução
-                    isRandom ? shuffleId + 1 : nextSong,
+                    isRandom ? shuffleId + 1: nextSong,
                     songListSize);
             this.thread.start();
         }
@@ -350,7 +351,7 @@ public class Player {
                    false,
                    0,
                    songTime,//Tempo Total da música em execução
-                   isRandom ? shuffleId + 1 : previousSong,
+                   isRandom ? shuffleId + 1: previousSong,
                    songListSize);
            this.thread.start();
        } finally {
@@ -383,9 +384,32 @@ public class Player {
         try{
             lock.lock();
             isRandom = !isRandom;
-            if (isRandom && this.thread != null){
+            if (isRandom && this.thread !=  null){
                 createShuffleOrder();
                 shuffleId = 0;
+
+                this.thread.interrupt();
+                this.thread = new ControlPlayer(this.window,
+                        true,
+                        true,
+                        false,
+                        this.thread.getCurrentTime(),
+                        this.thread.getTotalTime(),
+                        shuffleId,
+                        shuffleOrder.length);
+                this.thread.start();
+
+            } else if (this.thread != null){
+                this.thread.interrupt();
+                this.thread = new ControlPlayer(this.window,
+                        true,
+                        true,
+                        false,
+                        this.thread.getCurrentTime(),
+                        this.thread.getTotalTime(),
+                        shuffleOrder[this.thread.getCurrentSongId() - 1 ],
+                        shuffleOrder.length);
+                this.thread.start();
             }
         } finally {
             lock.unlock();
