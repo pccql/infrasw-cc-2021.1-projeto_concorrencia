@@ -92,5 +92,7 @@ public class ControlPlayer extends Thread{
             this.isPlaying = updateisPlaying;
         }
 
+        public void setisRepeat(boolean updateisRepeat){ this.isRepeat = updateisRepeat;}
+
     }
 

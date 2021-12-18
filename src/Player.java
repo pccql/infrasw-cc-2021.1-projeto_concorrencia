@@ -76,20 +76,20 @@ public class Player {
 
 
         this.window = new PlayerWindow(
-            buttonListenerPlayNow,
-            buttonListenerRemove,
-            buttonListenerAddSong,
-            buttonListenerPlayPause,
-            buttonListenerStop,
-            buttonListenerNext,
-            buttonListenerPrevious,
-            buttonListenerShuffle,
-            buttonListenerRepeat,
-            scrubberListenerClick,
-            scrubberListenerMotion,
-            windowTitle,
-            this.songList
-            );
+                buttonListenerPlayNow,
+                buttonListenerRemove,
+                buttonListenerAddSong,
+                buttonListenerPlayPause,
+                buttonListenerStop,
+                buttonListenerNext,
+                buttonListenerPrevious,
+                buttonListenerShuffle,
+                buttonListenerRepeat,
+                scrubberListenerClick,
+                scrubberListenerMotion,
+                windowTitle,
+                this.songList
+        );
     }
 
     public String setSongId(String previousId ) {
@@ -173,7 +173,7 @@ public class Player {
             lock.unlock();
         }
 
-        }
+    }
 
 
     public void remove() {
@@ -267,7 +267,7 @@ public class Player {
 
 
 
-};
+    };
 
     public void stop() {
         try{
@@ -287,12 +287,31 @@ public class Player {
             lock.lock();
             this.thread.interrupt();
             int songListSize = this.songList.length;
+            if(shuffleId == songListSize){
+                shuffleId = -1;
+            }
+
+            System.out.println("Next");
+            System.out.println(shuffleId);
+            System.out.println(songListSize);
+            System.out.println("----------");
             int nextSong = isRandom ? shuffleOrder[shuffleId + 1] : this.thread.getCurrentSongId()+1;
             int songTime = 0;
+            int currentSong = this.thread.getCurrentSongId();
 
             if (isRandom) {
                 shuffleId++;
             }
+
+            if(!isRandom && isRepeat && currentSong == songListSize){
+                nextSong = 1;
+            }
+
+
+            if(isRandom && isRepeat && shuffleId == songListSize-1){
+                 shuffleId = -1;
+            }
+
 
             for (int i=0; i < songListSize ; i++) {
                 String songId = this.songList[i][6];
@@ -309,7 +328,7 @@ public class Player {
             this.thread = new ControlPlayer(this.window,
                     true,
                     true,
-                    false,
+                    isRepeat,
                     0,
                     songTime,//Tempo Total da música em execução
                     isRandom ? shuffleId + 1: nextSong,
@@ -324,39 +343,60 @@ public class Player {
     };
 
     public void prev() {
-       try{
-           lock.lock();
-           this.thread.interrupt();
-           int previousSong = isRandom ? shuffleOrder[shuffleId - 1] : this.thread.getCurrentSongId()-1;
-           int songListSize = this.songList.length;
-           int songTime = 0;
+        try{
+            lock.lock();
+            this.thread.interrupt();
+            if(shuffleId==0){
+                shuffleId = 1;
+            }
+            System.out.println("Previous");
+            System.out.println(shuffleId);
+            int songListSize = this.songList.length;
+            System.out.println(songListSize);
+            System.out.println("---------------");
+            int previousSong = isRandom ? shuffleOrder[shuffleId - 1] : this.thread.getCurrentSongId()-1;
 
-           if (isRandom){ shuffleId--; }
+            int songTime = 0;
+            int currentSong = this.thread.getCurrentSongId();
 
-           for (int i=0; i < songListSize ; i++) {
-               String songId = this.songList[i][6];
-               if (songId.equals(String.valueOf(previousSong))) {
-                   int finalI = i;
-                   SwingUtilities.invokeLater(() ->
-                       this.window.updatePlayingSongInfo(this.songList[finalI][0], this.songList[finalI][1], this.songList[finalI][2])
-                   );
+            if (isRandom) {
+                shuffleId--;
+            }
 
-                   songTime = Integer.parseInt(this.songList[i][5]);
-                   break;
-               }
-           }
-           this.thread = new ControlPlayer(this.window,
-                   true,
-                   true,
-                   false,
-                   0,
-                   songTime,//Tempo Total da música em execução
-                   isRandom ? shuffleId + 1: previousSong,
-                   songListSize);
-           this.thread.start();
-       } finally {
-           lock.unlock();
-       }
+            if(!isRandom && isRepeat && currentSong == 1){
+                previousSong = this.songList.length;
+            }
+
+            if(isRandom && isRepeat && shuffleId == 0){
+                System.out.println("oi");
+                shuffleId = songListSize;
+            }
+
+
+            for (int i=0; i < songListSize ; i++) {
+                String songId = this.songList[i][6];
+                if (songId.equals(String.valueOf(previousSong))) {
+                    int finalI = i;
+                    SwingUtilities.invokeLater(() ->
+                            this.window.updatePlayingSongInfo(this.songList[finalI][0], this.songList[finalI][1], this.songList[finalI][2])
+                    );
+
+                    songTime = Integer.parseInt(this.songList[i][5]);
+                    break;
+                }
+            }
+            this.thread = new ControlPlayer(this.window,
+                    true,
+                    true,
+                    isRepeat,
+                    0,
+                    songTime,//Tempo Total da música em execução
+                    isRandom ? shuffleId + 1: previousSong,
+                    songListSize);
+            this.thread.start();
+        } finally {
+            lock.unlock();
+        }
     };
 
 
@@ -401,13 +441,14 @@ public class Player {
 
             } else if (this.thread != null){
                 this.thread.interrupt();
+
                 this.thread = new ControlPlayer(this.window,
                         true,
                         true,
                         false,
                         this.thread.getCurrentTime(),
                         this.thread.getTotalTime(),
-                        shuffleOrder[this.thread.getCurrentSongId() - 1 ],
+                        shuffleOrder[this.thread.getCurrentSongId() == 0 ? 0 : this.thread.getCurrentSongId() - 1 ],
                         shuffleOrder.length);
                 this.thread.start();
             }
@@ -421,10 +462,19 @@ public class Player {
         try{
             lock.lock();
             isRepeat = !isRepeat;
+            System.out.println(isRepeat);
+            if (isRepeat){
+                this.thread.setisRepeat(true);
+            }
+            else{
+                this.thread.setisRepeat(false);
+            }
+
         } finally {
             lock.unlock();
         }
     };
+
 
     private void createShuffleOrder( ) {
         int currentSong = this.thread.getCurrentSongId();
@@ -454,4 +504,3 @@ public class Player {
 
 
 }
-
