@@ -105,6 +105,11 @@ public class Player {
             int songListSize = this.songList.length;
             int songTime = 0;
 
+            if(isRandom){
+                isRandom = false;
+                shuffle();
+            }
+
             // Checando a música escolhida na matriz para colher informações
 
             for (int i=0; i < songListSize ; i++) {
@@ -221,6 +226,11 @@ public class Player {
             this.songId = String.valueOf(Integer.parseInt(this.songId)-1);
             window.updateQueueList(newSongList);
 
+            if(isRandom){
+                isRandom = false;
+                shuffle();
+            }
+
         } finally {
             lock.unlock();
         }
@@ -252,6 +262,11 @@ public class Player {
 
                 if (this.thread != null) {
                     this.thread.setQueueSize(songListSize + 1);
+                }
+                System.out.println(isRandom);
+                if(isRandom){
+                    isRandom = false;
+                    shuffle();
                 }
             } finally {
                 lock.unlock();
@@ -346,7 +361,7 @@ public class Player {
                 shuffleId = 1;
             }
 
-            int songListSize = this.songList.length;
+            int songListSize = isRandom ? this.songList.length : this.songList.length;
 
             int previousSong = isRandom ? shuffleOrder[shuffleId - 1] : this.thread.getCurrentSongId()-1;
 
