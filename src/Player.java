@@ -287,14 +287,10 @@ public class Player {
             lock.lock();
             this.thread.interrupt();
             int songListSize = this.songList.length;
-            if(shuffleId == songListSize){
+            if(shuffleId == songListSize || shuffleId == songListSize-1 && isRepeat && isRandom){
                 shuffleId = -1;
             }
 
-            System.out.println("Next");
-            System.out.println(shuffleId);
-            System.out.println(songListSize);
-            System.out.println("----------");
             int nextSong = isRandom ? shuffleOrder[shuffleId + 1] : this.thread.getCurrentSongId()+1;
             int songTime = 0;
             int currentSong = this.thread.getCurrentSongId();
@@ -346,14 +342,12 @@ public class Player {
         try{
             lock.lock();
             this.thread.interrupt();
-            if(shuffleId==0){
+            if( (shuffleId == -1 || shuffleId == 0) && isRandom && isRepeat){
                 shuffleId = 1;
             }
-            System.out.println("Previous");
-            System.out.println(shuffleId);
+
             int songListSize = this.songList.length;
-            System.out.println(songListSize);
-            System.out.println("---------------");
+
             int previousSong = isRandom ? shuffleOrder[shuffleId - 1] : this.thread.getCurrentSongId()-1;
 
             int songTime = 0;
@@ -368,7 +362,6 @@ public class Player {
             }
 
             if(isRandom && isRepeat && shuffleId == 0){
-                System.out.println("oi");
                 shuffleId = songListSize;
             }
 
@@ -422,6 +415,7 @@ public class Player {
 
     public void shuffle() {
         try{
+
             lock.lock();
             isRandom = !isRandom;
             if (isRandom && this.thread !=  null){
@@ -432,7 +426,7 @@ public class Player {
                 this.thread = new ControlPlayer(this.window,
                         true,
                         true,
-                        false,
+                        isRepeat,
                         this.thread.getCurrentTime(),
                         this.thread.getTotalTime(),
                         shuffleId,
@@ -462,7 +456,6 @@ public class Player {
         try{
             lock.lock();
             isRepeat = !isRepeat;
-            System.out.println(isRepeat);
             if (isRepeat){
                 this.thread.setisRepeat(true);
             }
@@ -499,7 +492,6 @@ public class Player {
         shuffleOrder[0] = currentSong;
         System.arraycopy(newShuffleList, 0, shuffleOrder, 1, songListSize - 1);
 
-        System.out.println(Arrays.toString(shuffleOrder));
     }
 
 
